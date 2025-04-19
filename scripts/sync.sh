@@ -9,3 +9,14 @@
   do
     rsync -av --delete "//BlackJK-NAS1/Container/container-station-data/lib/docker/volumes/homeassistant-1_config/_data/${dir}/" "./${dir}/"
   done
+
+  # ----------------------------------------------------------------------------------------------------
+
+  git add .
+
+  echo ""
+  echo ""
+  echo "--------------------------------------------------"
+  echo "git status"
+  echo "--------------------------------------------------"
+  git status

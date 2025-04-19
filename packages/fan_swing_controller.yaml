@@ -6,6 +6,75 @@
 #      - 綁定 service: fan.oscillate
 # ----------------------------------------------------------------------------------------------------
 
+template:
+  - binary_sensor:
+      - name: "Fan 1 Swing Angle 30"
+        unique_id: fan_1_swing_angle_30
+        state: "{{ is_state('number.zhimi_sg_508136115_fb1_horizontal_angle_p_2_5', '30') }}"
+      - name: "Fan 1 Swing Angle 60"
+        unique_id: fan_1_swing_angle_60
+        state: "{{ is_state('number.zhimi_sg_508136115_fb1_horizontal_angle_p_2_5', '60') }}"
+      - name: "Fan 1 Swing Angle 90"
+        unique_id: fan_1_swing_angle_90
+        state: "{{ is_state('number.zhimi_sg_508136115_fb1_horizontal_angle_p_2_5', '90') }}"
+      - name: "Fan 1 Swing Angle 120"
+        unique_id: fan_1_swing_angle_120
+        state: "{{ is_state('number.zhimi_sg_508136115_fb1_horizontal_angle_p_2_5', '120') }}"
+      - name: "Fan 1 vertical Angle 30"
+        unique_id: fan_1_vertical_angle_30
+        state: "{{ is_state('number.zhimi_sg_508136115_fb1_vertical_angle_p_2_6', '30') }}"
+      - name: "Fan 1 vertical Angle 60"
+        unique_id: fan_1_vertical_angle_60
+        state: "{{ is_state('number.zhimi_sg_508136115_fb1_vertical_angle_p_2_6', '60') }}"
+      - name: "Fan 1 vertical Angle 90"
+        unique_id: fan_1_vertical_angle_90
+        state: "{{ is_state('number.zhimi_sg_508136115_fb1_vertical_angle_p_2_6', '90') }}"
+
+      - name: "Fan 2 Swing Angle 30"
+        unique_id: fan_2_swing_angle_30
+        state: "{{ is_state('number.zhimi_sg_507844080_fb1_horizontal_angle_p_2_5', '30') }}"
+      - name: "Fan 2 Swing Angle 60"
+        unique_id: fan_2_swing_angle_60
+        state: "{{ is_state('number.zhimi_sg_507844080_fb1_horizontal_angle_p_2_5', '60') }}"
+      - name: "Fan 2 Swing Angle 90"
+        unique_id: fan_2_swing_angle_90
+        state: "{{ is_state('number.zhimi_sg_507844080_fb1_horizontal_angle_p_2_5', '90') }}"
+      - name: "Fan 2 Swing Angle 120"
+        unique_id: fan_2_swing_angle_120
+        state: "{{ is_state('number.zhimi_sg_507844080_fb1_horizontal_angle_p_2_5', '120') }}"
+      - name: "Fan 2 vertical Angle 30"
+        unique_id: fan_2_vertical_angle_30
+        state: "{{ is_state('number.zhimi_sg_507844080_fb1_vertical_angle_p_2_6', '30') }}"
+      - name: "Fan 2 vertical Angle 60"
+        unique_id: fan_2_vertical_angle_60
+        state: "{{ is_state('number.zhimi_sg_507844080_fb1_vertical_angle_p_2_6', '60') }}"
+      - name: "Fan 2 vertical Angle 90"
+        unique_id: fan_2_vertical_angle_90
+        state: "{{ is_state('number.zhimi_sg_507844080_fb1_vertical_angle_p_2_6', '90') }}"
+
+      - name: "Fan 3 Swing Angle 30"
+        unique_id: fan_3_swing_angle_30
+        state: "{{ is_state('number.zhimi_sg_508199094_fb1_horizontal_angle_p_2_5', '30') }}"
+      - name: "Fan 3 Swing Angle 60"
+        unique_id: fan_3_swing_angle_60
+        state: "{{ is_state('number.zhimi_sg_508199094_fb1_horizontal_angle_p_2_5', '60') }}"
+      - name: "Fan 3 Swing Angle 90"
+        unique_id: fan_3_swing_angle_90
+        state: "{{ is_state('number.zhimi_sg_508199094_fb1_horizontal_angle_p_2_5', '90') }}"
+      - name: "Fan 3 Swing Angle 120"
+        unique_id: fan_3_swing_angle_120
+        state: "{{ is_state('number.zhimi_sg_508199094_fb1_horizontal_angle_p_2_5', '120') }}"
+      - name: "Fan 3 vertical Angle 30"
+        unique_id: fan_3_vertical_angle_30
+        state: "{{ is_state('number.zhimi_sg_508199094_fb1_vertical_angle_p_2_6', '30') }}"
+      - name: "Fan 3 vertical Angle 60"
+        unique_id: fan_3_vertical_angle_60
+        state: "{{ is_state('number.zhimi_sg_508199094_fb1_vertical_angle_p_2_6', '60') }}"
+      - name: "Fan 3 vertical Angle 90"
+        unique_id: fan_3_vertical_angle_90
+        state: "{{ is_state('number.zhimi_sg_508199094_fb1_vertical_angle_p_2_6', '90') }}"
+
+
 switch:
   - platform: template
     switches:
