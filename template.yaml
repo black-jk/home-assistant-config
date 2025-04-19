@@ -1,0 +1,142 @@
+# /template.yaml:
+
+# ----------------------------------------------------------------------------------------------------
+#  [虛擬 Sensor]
+#    - 結合 device_tracker + WiFi connection
+# ----------------------------------------------------------------------------------------------------
+
+- sensor:
+    - name: "Composite Location State (Source of JK)"
+      unique_id: composite_location_state_src_jk
+      state: >
+        {% set device_tracker_state = states('device_tracker.asus_i006d') %}
+        {% set wifi_connection_state = states('sensor.asus_i006d_wi_fi_connection') %}
+
+        {% if wifi_connection_state in ['JK-Home'] or device_tracker_state in ['home']%}
+          在家
+        {% elif wifi_connection_state in ['HD', 'HD_AP1'] or device_tracker_state in ['公司']%}
+          公司
+        {% elif device_tracker_state in ['幼兒園', '公司']%}
+          {{ device_tracker_state }}
+        {% elif device_tracker_state in ['not_home']%}
+          離家
+        {% else %}
+          不可用
+        {% endif %}
+
+# --------------------------------------------------
+#  [虛擬 Sensor]
+#    - 過濾無效的狀態
+#    - 遇到無效的狀態時回傳上一次的結果
+# --------------------------------------------------
+
+- trigger:
+    - platform: state
+      entity_id: sensor.composite_location_state_source_of_jk
+  sensor:
+    - name: "Composite Location State (JK)"
+      unique_id: composite_location_state_jk
+      state: >
+        {% set previous = trigger.from_state.state if trigger is defined else '初始' %}
+        {% set to       = trigger.to_state.state   if trigger is defined else '未知' %}
+        {% if to in ['在家', '離家', '幼兒園', '公司'] %}
+          {{ to }}
+        {% else %}
+          {{ previous }}
+        {% endif %}
+
+# --------------------------------------------------
+#  [測試]
+# --------------------------------------------------
+
+- sensor:
+    - name: "Composite Location State (Source of TEST)"
+      unique_id: composite_location_state_src_test
+      state: >
+        {% set device_tracker_state = states('input_text.test_text_01') %}
+        {% set wifi_connection_state = states('input_text.test_text_02') %}
+
+        {% if wifi_connection_state in ['JK-Home'] or device_tracker_state in ['home']%}
+          在家
+        {% elif wifi_connection_state in ['HD', 'HD_AP1'] or device_tracker_state in ['公司']%}
+          公司
+        {% elif device_tracker_state in ['幼兒園', '公司']%}
+          {{ device_tracker_state }}
+        {% elif device_tracker_state in ['not_home']%}
+          離家
+        {% else %}
+          不可用
+        {% endif %}
+#          不可用 [tracker: {{ device_tracker_state }}] - [wifi: {{ wifi_connection_state }}]
+
+# --------------------------------------------------
+
+- trigger:
+    - platform: state
+      entity_id: sensor.composite_location_state_source_of_test
+  sensor:
+    - name: "Composite Location State (TEST)"
+      unique_id: composite_location_state_test
+      state: >
+        {% set previous = trigger.from_state.state if trigger is defined else '初始' %}
+        {% set to       = trigger.to_state.state   if trigger is defined else '未知' %}
+        {% if to in ['在家', '離家', '幼兒園', '公司'] %}
+          {{ to }}
+        {% else %}
+          {{ previous }}
+        {% endif %}
+
+
+
+# ----------------------------------------------------------------------------------------------------
+#  [虛擬 Sensor]
+#    - 回傳可讀性較好的 uptime  (秒 --> 天/時/分/秒)
+# ----------------------------------------------------------------------------------------------------
+
+- sensor:
+    - name: "esp-sensor-1 - Uptime Pretty"
+      unique_id: esp_sensor_1_uptime_pretty
+      state: >
+        {% set raw = states('sensor.esp_sensor_1_uptime') %}
+        {% if raw in ['unknown', 'unavailable', 'None'] %}
+          不可用
+        {% else %}
+          {% set seconds = raw | int(0) %}
+          {% set days = (seconds // 86400) %}
+          {% set hours = (seconds % 86400) // 3600 %}
+          {% set minutes = (seconds % 3600) // 60 %}
+          {% set secs = seconds % 60 %}
+          {% set parts = [] %}
+          {% if days > 0 %} {% set parts = parts + [days ~ '天'] %} {% endif %}
+          {% if hours > 0 %} {% set parts = parts + [hours ~ '小時'] %} {% endif %}
+          {% if minutes > 0 %} {% set parts = parts + [minutes ~ '分'] %} {% endif %}
+          {% if secs > 0 and days == 0 %} {% set parts = parts + [secs ~ '秒'] %} {% endif %}
+          {{ parts | join(' ') if parts else '剛啟動' }}
+        {% endif %}
+
+# --------------------------------------------------
+
+- sensor:
+    - name: "esp-controller-1 - Uptime Pretty"
+      unique_id: esp_controller_1_uptime_pretty
+      state: >
+        {% set raw = states('sensor.esp_controller_1_uptime') %}
+        {% if raw in ['unknown', 'unavailable', 'None'] %}
+          不可用
+        {% else %}
+          {% set seconds = raw | int(0) %}
+          {% set days = (seconds // 86400) %}
+          {% set hours = (seconds % 86400) // 3600 %}
+          {% set minutes = (seconds % 3600) // 60 %}
+          {% set secs = seconds % 60 %}
+          {% set parts = [] %}
+          {% if days > 0 %} {% set parts = parts + [days ~ '天'] %} {% endif %}
+          {% if hours > 0 %} {% set parts = parts + [hours ~ '小時'] %} {% endif %}
+          {% if minutes > 0 %} {% set parts = parts + [minutes ~ '分'] %} {% endif %}
+          {% if secs > 0 and days == 0 %} {% set parts = parts + [secs ~ '秒'] %} {% endif %}
+          {{ parts | join(' ') if parts else '剛啟動' }}
+        {% endif %}
+
+
+
+# ----------------------------------------------------------------------------------------------------

@@ -1,0 +1,52 @@
+# /packages/fan_horizontal_swing.yaml:
+
+# ----------------------------------------------------------------------------------------------------
+#  [虛擬開關]
+#    [左右擺動]
+#      - 綁定 service: fan.oscillate
+# ----------------------------------------------------------------------------------------------------
+
+switch:
+  - platform: template
+    switches:
+      zhimi_sg_508136115_horizontal_swing:
+        friendly_name: "循環扇 1 左右擺動"
+        value_template: "{{ state_attr('fan.zhimi_sg_508136115_fb1_s_2_fan', 'oscillating') }}"
+        turn_on:
+          service: fan.oscillate
+          data:
+            entity_id: fan.zhimi_sg_508136115_fb1_s_2_fan
+            oscillating: true
+        turn_off:
+          service: fan.oscillate
+          data:
+            entity_id: fan.zhimi_sg_508136115_fb1_s_2_fan
+            oscillating: false
+
+      zhimi_sg_507844080_horizontal_swing:
+        friendly_name: "循環扇 2 左右擺動"
+        value_template: "{{ state_attr('fan.zhimi_sg_507844080_fb1_s_2_fan', 'oscillating') }}"
+        turn_on:
+          service: fan.oscillate
+          data:
+            entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            oscillating: true
+        turn_off:
+          service: fan.oscillate
+          data:
+            entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            oscillating: false
+
+      zhimi_sg_508199094_horizontal_swing:
+        friendly_name: "循環扇 3 左右擺動"
+        value_template: "{{ state_attr('fan.zhimi_sg_508199094_fb1_s_2_fan', 'oscillating') }}"
+        turn_on:
+          service: fan.oscillate
+          data:
+            entity_id: fan.zhimi_sg_508199094_fb1_s_2_fan
+            oscillating: true
+        turn_off:
+          service: fan.oscillate
+          data:
+            entity_id: fan.zhimi_sg_508199094_fb1_s_2_fan
+            oscillating: false

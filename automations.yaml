@@ -1,0 +1,499 @@
+- id: '1744257648253'
+  alias: '[AUTO] 到家 - 開客廳燈、開房間電扇'
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.composite_location_state_jk
+  - trigger: state
+    entity_id:
+    - sensor.composite_location_state_test
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+    enabled: false
+  conditions:
+  - condition: state
+    entity_id: input_boolean.jk_not_at_home
+    state: 'on'
+  - condition: template
+    value_template: '{% set from = trigger.from_state.state if trigger is defined
+      else ''離家'' %}
+
+      {% set to = trigger.to_state.state if trigger is defined else ''在家'' %}
+
+      {{ from in [''在家'', ''離家'', ''幼兒園'', ''公司''] and to in [''在家''] }}'
+    enabled: true
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id:
+      - input_boolean.jk_not_at_home
+    data: {}
+    enabled: true
+  - parallel:
+    - if:
+      - condition: time
+        after: 08:00:00
+        before: '20:30:00'
+        weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+        - sat
+        - sun
+      then:
+      - action: light.turn_on
+        continue_on_error: true
+        metadata: {}
+        data:
+          brightness_pct: 85
+          kelvin: 5500
+        target:
+          entity_id: light.yeelink_sg_594192509_ceiling22_s_2_light
+    - if:
+      - condition: or
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.esp_sensor_1_temperature
+          above: 25
+        - condition: state
+          entity_id: sensor.esp_sensor_1_temperature
+          state: unavailable
+      then:
+      - action: script.1
+        continue_on_error: true
+        metadata: {}
+        data: {}
+    - type: notify
+      domain: mobile_app
+      continue_on_error: true
+      device_id: 47a779ad63edb5bb026f8229aa7831de
+      title: '{{ now().timestamp() | timestamp_custom(''%H:%M:%S'') }} 到家'
+      message: 歡迎回家
+    enabled: true
+  - type: notify
+    domain: mobile_app
+    continue_on_error: true
+    device_id: 47a779ad63edb5bb026f8229aa7831de
+    title: '{{ now().timestamp() | timestamp_custom(''%H:%M:%S'') }} 到家'
+    message: 歡迎回家 (測試)
+    enabled: false
+  mode: single
+- id: '1744524576594'
+  alias: '測試: 離開 「家 - 附近 」'
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.jia_blackjk_z8_distance
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+    above: 300
+  conditions: []
+  actions:
+  - action: notify.mobile_app_asus_i006d
+    metadata: {}
+    data:
+      message: 離開 「家 - 附近 300 公尺」
+      title: 狀態變更
+    enabled: false
+  - action: input_text.set_value
+    metadata: {}
+    data:
+      value: 離開家附近
+    target:
+      entity_id: input_text.jk_wei_zhi_zhuang_tai
+  - device_id: 47a779ad63edb5bb026f8229aa7831de
+    domain: mobile_app
+    type: notify
+    enabled: true
+    message: '{{ now().timestamp() | timestamp_custom(''%Y-%m-%d %H:%M:%S'') }}'
+    title: 離開家附近
+  mode: single
+- id: '1744524619281'
+  alias: '測試: 進入 「家 - 附近」'
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - input_number.test_number_01
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 5
+    above: 50
+    below: 300
+    enabled: false
+  - trigger: numeric_state
+    entity_id:
+    - sensor.jia_blackjk_z8_distance
+    above: 50
+    below: 300
+    enabled: true
+  conditions:
+  - condition: template
+    value_template: '{{ states(''input_text.jk_wei_zhi_zhuang_tai'') == ''離開家附近''
+      }}'
+  actions:
+  - action: input_text.set_value
+    metadata: {}
+    data:
+      value: 到達家附近
+    target:
+      entity_id: input_text.jk_wei_zhi_zhuang_tai
+  - if:
+    - condition: numeric_state
+      entity_id: sensor.esp_sensor_1_temperature
+      above: 25
+    then:
+    - device_id: 47a779ad63edb5bb026f8229aa7831de
+      domain: mobile_app
+      type: notify
+      enabled: true
+      message: '{{ ''房間溫度: '' }}{{ states(''sensor.esp_sensor_1_temperature'') }}
+        {{ "°c，建議先開啟冷氣" }}'
+      title: '{{ now().timestamp() | timestamp_custom(''%H:%M:%S'') }} 到達家附近'
+    else:
+    - device_id: 47a779ad63edb5bb026f8229aa7831de
+      domain: mobile_app
+      type: notify
+      enabled: true
+      message: 歡迎回家
+      title: '{{ now().timestamp() | timestamp_custom(''%H:%M:%S'') }} 到達家附近'
+  mode: single
+- id: '1744537222817'
+  alias: 測試
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.jia_blackjk_z8_distance
+    above: 35
+    below: 65
+    enabled: true
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 15
+  - trigger: numeric_state
+    entity_id:
+    - input_number.test_number_01
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 1
+    above: 50
+    below: 300
+    enabled: true
+  conditions:
+  - condition: state
+    entity_id: device_tracker.asus_i006d
+    state: 離家
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+    enabled: false
+  - condition: state
+    entity_id: sensor.jia_blackjk_z8_direction_of_travel
+    state: towards
+    enabled: false
+  - condition: numeric_state
+    entity_id: sensor.esp_sensor_1_temperature
+    above: 25
+  actions:
+  - action: notify.mobile_app_asus_i006d
+    metadata: {}
+    data:
+      message: '建議先開啟冷氣 '
+      title: 測 到達家附近
+    enabled: false
+  mode: single
+- id: '1744569429188'
+  alias: TEST ESP BUTTON
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.esp_controller_1_physical_button_1
+    from: 'off'
+    to: 'on'
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    data:
+      brightness_pct: 85
+      kelvin: 5500
+    target:
+      entity_id: light.yeelink_sg_594192509_ceiling22_s_2_light
+    enabled: false
+  - action: switch.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.esp_sensor_1_onboard_led
+    enabled: true
+  mode: single
+- id: '1744609746869'
+  alias: '[通知] 地點變更'
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - device_tracker.asus_i006d
+    from:
+    to:
+  - trigger: state
+    entity_id:
+    - input_text.test_text_01
+    from:
+    to:
+    enabled: false
+  conditions:
+  - condition: and
+    conditions:
+    - condition: template
+      value_template: '{% set from = trigger.from_state.state if trigger is defined
+        else ''home'' %}
+
+        {% set to   = trigger.to_state.state   if trigger is defined else ''not_home''
+        %}
+
+        {{ from in [''home'', ''not_home'', ''幼兒園'', ''公司''] and to in [''home'',
+        ''not_home'', ''幼兒園'', ''公司''] }}'
+  actions:
+  - device_id: 47a779ad63edb5bb026f8229aa7831de
+    domain: mobile_app
+    type: notify
+    enabled: true
+    message: "{% set from = trigger.from_state.state if trigger is defined and trigger.from_state
+      is defined else 'not_home' %} {% set from = '在家' if from == 'home' else from
+      %} {% set from = '離家' if from == 'not_home' else from %}\n{% set to = states('device_tracker.asus_i006d')
+      | default('未知') %} {% set to = '在家' if to == 'home' else to %} {% set to = '離家'
+      if to == 'not_home' else to %}\n{% if to == '在家' %}\n  {{ from }} -> 到家\n{%
+      elif to == '離家' %}\n  {{ from }} -> 離家\n{% else %}\n  到達 {{ to }}\n{% endif
+      %}\n"
+    title: '{{ now().timestamp() | timestamp_custom(''%H:%M:%S'') }} 地點變更'
+  mode: single
+- id: '1744627572144'
+  alias: esp-controlloer-button-1
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.esp_controller_1_physical_button_1
+    from: 'off'
+    to: 'on'
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    data:
+      brightness_pct: 85
+      kelvin: 5500
+    target:
+      entity_id: light.yeelink_sg_594192509_ceiling22_s_2_light
+    enabled: false
+  - action: switch.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - switch.esp_controller_1_onboard_led
+    enabled: true
+  mode: single
+- id: '1744627615632'
+  alias: esp-controlloer-button-2
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.esp_controller_1_physical_button_2
+    from: 'off'
+    to: 'on'
+  conditions: []
+  actions:
+  - action: light.toggle
+    metadata: {}
+    data:
+      brightness_pct: 85
+      kelvin: 5500
+    target:
+      entity_id:
+      - light.yeelink_sg_648869557_ceiling22_s_2_light
+    enabled: false
+  - action: switch.toggle
+    metadata: {}
+    data: {}
+    target:
+      entity_id: switch.esp_sensor_1_onboard_led
+    enabled: true
+  mode: single
+- id: '1744690509857'
+  alias: test-webhook
+  description: ''
+  triggers:
+  - trigger: webhook
+    allowed_methods:
+    - POST
+    - PUT
+    - GET
+    local_only: false
+    webhook_id: 13pm6J4Cb5eV10Yi0LQAiOw3z
+  conditions: []
+  actions:
+  - action: notify.mobile_app_asus_i006d
+    metadata: {}
+    data:
+      message: test
+      title: test webhook
+  mode: single
+- id: '1744766408861'
+  alias: '[通知] 室溫偏高'
+  description: ''
+  triggers:
+  - trigger: numeric_state
+    entity_id:
+    - sensor.esp_sensor_1_temperature
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+    above: 27.9999
+  - trigger: numeric_state
+    entity_id:
+    - input_number.test_number_01
+    above: 29.9999
+  conditions:
+  - condition: state
+    entity_id: sensor.composite_location_state_jk
+    state: 在家
+  actions:
+  - device_id: 47a779ad63edb5bb026f8229aa7831de
+    domain: mobile_app
+    type: notify
+    enabled: true
+    message: '{% set temperature = trigger.to_state.state if trigger is defined and
+      trigger.to_state is defined else -127 %}
+
+      房間溫度 {{ temperature }} °C
+
+      '
+    title: '{{ now().timestamp() | timestamp_custom(''%H:%M:%S'') }}'
+  mode: single
+- id: '1744800921110'
+  alias: ESP 異常推播通知
+  description: ''
+  triggers:
+  - minutes: /5
+    trigger: time_pattern
+  conditions:
+  - condition: template
+    value_template: "{% set wifi1 = states('sensor.esp_sensor_1_wifi_signal') | float(-100)
+      %} {% set wifi2 = states('sensor.esp_controller_1_wifi_signal') | float(-100)
+      %} {% set up1 = states('sensor.esp_sensor_1_uptime') | int(0) %} {% set up2
+      = states('sensor.esp_controller_1_uptime') | int(0) %} {% set any_unavailable
+      = [\n  'sensor.esp_sensor_1_wifi_signal',\n  'sensor.esp_controller_1_wifi_signal'\n]
+      | select('in', ['unknown', 'unavailable', 'none']) | list | count > 0 %} {{
+      wifi1 < -70 or wifi2 < -70 or up1 < 60 or up2 < 60 or any_unavailable }}\n"
+  actions:
+  - action: notify.mobile_app_asus_i006d
+    data:
+      title: ESP 設備異常
+      message: "{% set wifi1 = states('sensor.esp_sensor_1_wifi_signal') | float(-100)
+        %} {% set wifi2 = states('sensor.esp_controller_1_wifi_signal') | float(-100)
+        %} {% set up1 = states('sensor.esp_sensor_1_uptime') | int(0) %} {% set up2
+        = states('sensor.esp_controller_1_uptime') | int(0) %}\n{% set alerts = []
+        %} {% if wifi1 < -70 %} {% set alerts = alerts + ['\U0001F4F6 Sensor 1 Wi-Fi
+        訊號弱'] %} {% endif %} {% if wifi2 < -70 %} {% set alerts = alerts + ['\U0001F4F6
+        Controller 1 Wi-Fi 訊號弱'] %} {% endif %} {% if up1 < 60 %} {% set alerts =
+        alerts + ['⏱️ Sensor 1 剛剛重啟'] %} {% endif %} {% if up2 < 60 %} {% set alerts
+        = alerts + ['⏱️ Controller 1 剛剛重啟'] %} {% endif %} {% if states('sensor.esp_sensor_1_wifi_signal')
+        in ['unknown', 'unavailable', 'none'] %}\n  {% set alerts = alerts + ['❌ Sensor
+        1 無法取得 Wi-Fi'] %}\n{% endif %} {% if states('sensor.esp_controller_1_wifi_signal')
+        in ['unknown', 'unavailable', 'none'] %}\n  {% set alerts = alerts + ['❌ Controller
+        1 無法取得 Wi-Fi'] %}\n{% endif %} {{ alerts | join(', ') }}\n"
+  mode: single
+- id: '1744811688959'
+  alias: '[AUTO] 離家 - 記錄狀態變更'
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - sensor.composite_location_state_jk
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  - trigger: state
+    entity_id:
+    - sensor.composite_location_state_test
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    enabled: false
+  conditions:
+  - condition: template
+    value_template: '{% set from = trigger.from_state.state if trigger is defined
+      else ''離家'' %}
+
+      {% set to = trigger.to_state.state if trigger is defined else ''在家'' %}
+
+      {{ from in [''在家'', ''離家'', ''幼兒園'', ''公司''] and to in [''在家'', ''離家'', ''幼兒園'',
+      ''公司''] }}'
+    enabled: false
+  - condition: template
+    value_template: '{% set from = trigger.from_state.state if trigger is defined
+      else ''在家'' %}
+
+      {% set to   = trigger.to_state.state   if trigger is defined else ''離家'' %}
+
+      {{ from in [''在家'', ''離家'', ''幼兒園'', ''公司''] and to in [''在家'', ''離家'', ''幼兒園'',
+      ''公司''] }}'
+    enabled: true
+  actions:
+  - if:
+    - condition: state
+      entity_id: input_boolean.jk_not_at_home
+      state: 'off'
+    - condition: template
+      value_template: '{% set to = trigger.to_state.state if trigger is defined else
+        ''離家'' %}
+
+        {{ to not in [''在家''] }}'
+      enabled: true
+    then:
+    - action: input_boolean.turn_on
+      continue_on_error: true
+      target:
+        entity_id: input_boolean.jk_not_at_home
+      data: {}
+    - action: input_datetime.set_datetime
+      continue_on_error: true
+      metadata: {}
+      target:
+        entity_id: input_datetime.jk_leave_home_at
+      data:
+        datetime: '{{ now().isoformat() }}'
+  - type: notify
+    domain: mobile_app
+    continue_on_error: true
+    device_id: 47a779ad63edb5bb026f8229aa7831de
+    title: '{{ now().timestamp() | timestamp_custom(''%H:%M:%S'') }} 離家'
+    message: '{% set from = trigger.from_state.state if trigger is defined else ''離家''
+      %}
+
+      {% set to = trigger.to_state.state if trigger is defined else ''在家'' %}
+
+      位置變更: {{ from }} -> {{to }}
+
+      '
+  mode: single

@@ -1,0 +1,63 @@
+# /packages/fan_control.yaml:
+#
+#  [範例]
+#  [虛擬開關]
+#    - 綁定 service: fan.oscillate
+#    - 可用一組 UI 控制多台風扇
+#
+
+input_text:
+  current_fan_id:
+    name: 當前控制風扇
+    initial: "507844080"
+
+template:
+  - switch:
+      - name: "動態風扇 左右擺動"
+        unique_id: dynamic_fan_horizontal_swing
+        icon: mdi:swap-horizontal
+        turn_on:
+          service: fan.oscillate
+          target:
+            entity_id: >
+              fan.zhimi_sg_{{ states('input_text.current_fan_id') }}_fb1_s_2_fan
+          data:
+            oscillating: true
+        turn_off:
+          service: fan.oscillate
+          target:
+            entity_id: >
+              fan.zhimi_sg_{{ states('input_text.current_fan_id') }}_fb1_s_2_fan
+          data:
+            oscillating: false
+        state: >
+          {{ state_attr('fan.zhimi_sg_' ~ states('input_text.current_fan_id') ~ '_fb1_s_2_fan', 'oscillating') }}
+
+
+# ----------------------------------------------------------------------------------------------------
+#  [UI]
+# ----------------------------------------------------------------------------------------------------
+#type: grid
+#cards:
+#  - type: heading
+#    heading: 新區塊
+#  - type: vertical-stack
+#    cards:
+#      - type: entities
+#        entities:
+#          - entity: input_text.current_fan_id
+#            name: 選擇風扇 ID
+#      - type: button
+#        entity: switch.dong_tai_feng_shan_zuo_you_bai_dong
+#        name: 左右擺動
+#        icon: mdi:swap-horizontal
+#        show_state: true
+#        tap_action:
+#          action: toggle
+#  - type: heading
+#    icon: ""
+#    heading_style: title
+#    grid_options:
+#      columns: 12
+#      rows: 1
+  

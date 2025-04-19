@@ -1,0 +1,319 @@
+# /packages/fan_control.yaml:
+
+# ----------------------------------------------------------------------------------------------------
+#  [風扇腳本]
+#    - input_text set state 自動觸發腳本執行
+#      - "seat", "sleep", "vent" - 執行對應腳本
+#      - ""                      - 中斷所有腳本
+# ----------------------------------------------------------------------------------------------------
+
+input_text:
+  current_fan_mode:
+    name: 目前風扇模式
+    max: 20
+
+template:
+  - binary_sensor:
+      - name: "Fan Mode Seat"
+        state: "{{ is_state('input_text.current_fan_mode', 'seat') }}"
+        unique_id: fan_mode_seat_state
+      - name: "Fan Mode Sleep"
+        state: "{{ is_state('input_text.current_fan_mode', 'sleep') }}"
+        unique_id: fan_mode_sleep_state
+      - name: "Fan Mode Vent"
+        state: "{{ is_state('input_text.current_fan_mode', 'vent') }}"
+        unique_id: fan_mode_vent_state
+
+script:
+  fan_mode_seat:
+    alias: "[Fan-Control] - 調整電扇 - 座位"
+    sequence:
+      - if:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: input_text.current_fan_mode
+                state: "seat"
+        then:
+          - stop: "模式已變更，中止執行"
+      - if:
+          - condition: state
+            entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            state: "off"
+        then:
+          - target:
+              entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            action: fan.turn_on
+            data: {}
+          - delay: "00:00:02"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: "seat"
+            then:
+              - stop: "模式已變更，中止執行"
+      - sequence:
+          - action: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.zhimi_sg_507844080_fb1_one_key_back_p_5_9
+          - delay: "00:00:02"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: "seat"
+            then:
+              - stop: "模式已變更，中止執行"
+          - if:
+              - condition: state
+                entity_id: switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
+                state: "on"
+            then:
+              - wait_for_trigger:
+                  - entity_id: switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
+                    from: null
+                    to: "off"
+                    trigger: state
+                timeout: "00:00:15"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: "seat"
+            then:
+              - stop: "模式已變更，中止執行"
+      - repeat:
+          count: 3
+          sequence:
+            - if:
+                - condition: not
+                  conditions:
+                    - condition: state
+                      entity_id: input_text.current_fan_mode
+                      state: "seat"
+              then:
+                - stop: "模式已變更，中止執行"
+            - target:
+                entity_id: text.zhimi_sg_507844080_fb1_h_swing_step_move_p_5_6
+              data:
+                value: right
+              action: text.set_value
+            - delay: "00:00:02"
+      - action: number.set_value
+        target:
+          entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
+        data:
+          value: >-
+            {{ 75 if states('sensor.esp_sensor_1_temperature') | float > 27 else 50 }}
+
+  fan_mode_sleep:
+    alias: "[Fan-Control] - 調整電扇 - 睡覺"
+    sequence:
+      - if:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: input_text.current_fan_mode
+                state: "sleep"
+        then:
+          - stop: "模式已變更，中止執行"
+      - if:
+          - condition: state
+            entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            state: "off"
+        then:
+          - target:
+              entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            action: fan.turn_on
+            data: {}
+          - delay: "00:00:02"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: "sleep"
+            then:
+              - stop: "模式已變更，中止執行"
+      - sequence:
+          - action: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.zhimi_sg_507844080_fb1_one_key_back_p_5_9
+          - delay: "00:00:02"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: "sleep"
+            then:
+              - stop: "模式已變更，中止執行"
+          - if:
+              - condition: state
+                entity_id: switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
+                state: "on"
+            then:
+              - wait_for_trigger:
+                  - entity_id: switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
+                    from: null
+                    to: "off"
+                    trigger: state
+                timeout: "00:00:15"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: "sleep"
+            then:
+              - stop: "模式已變更，中止執行"
+      - repeat:
+          count: 5
+          sequence:
+            - if:
+                - condition: not
+                  conditions:
+                    - condition: state
+                      entity_id: input_text.current_fan_mode
+                      state: "sleep"
+              then:
+                - stop: "模式已變更，中止執行"
+            - target:
+                entity_id: text.zhimi_sg_507844080_fb1_h_swing_step_move_p_5_6
+              data:
+                value: left
+              action: text.set_value
+            - delay: "00:00:02"
+      - action: number.set_value
+        target:
+          entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
+        data:
+          value: >-
+            {{ 85 if states('sensor.esp_sensor_1_temperature') | float > 27 else 80 }}
+
+  fan_mode_vent:
+    alias: "[Fan-Control] - 調整電扇 - 通風"
+    sequence:
+      - if:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: input_text.current_fan_mode
+                state: "vent"
+        then:
+          - stop: "模式已變更，中止執行"
+      - if:
+          - condition: state
+            entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            state: "off"
+        then:
+          - target:
+              entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            action: fan.turn_on
+            data: {}
+          - delay: "00:00:02"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: "vent"
+            then:
+              - stop: "模式已變更，中止執行"
+      - sequence:
+          - action: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.zhimi_sg_507844080_fb1_one_key_back_p_5_9
+          - delay: "00:00:02"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: "vent"
+            then:
+              - stop: "模式已變更，中止執行"
+          - if:
+              - condition: state
+                entity_id: switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
+                state: "on"
+            then:
+              - wait_for_trigger:
+                  - entity_id: switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
+                    from: null
+                    to: "off"
+                    trigger: state
+                timeout: "00:00:15"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: "vent"
+            then:
+              - stop: "模式已變更，中止執行"
+      - repeat:
+          count: 10
+          sequence:
+            - if:
+                - condition: not
+                  conditions:
+                    - condition: state
+                      entity_id: input_text.current_fan_mode
+                      state: "vent"
+              then:
+                - stop: "模式已變更，中止執行"
+            - target:
+                entity_id: text.zhimi_sg_507844080_fb1_h_swing_step_move_p_5_6
+              data:
+                value: right
+              action: text.set_value
+            - delay: "00:00:02"
+      - action: number.set_value
+        target:
+          entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
+        data:
+          value: >-
+            {{ 75 if states('sensor.esp_sensor_1_temperature') | float >= 27 else 50 }}
+
+automation:
+  - alias: "[Fan-Control] - 控制風扇主流程"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_text.current_fan_mode
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_text.current_fan_mode
+                state: "seat"
+            sequence:
+              - service: script.fan_mode_seat
+          - conditions:
+              - condition: state
+                entity_id: input_text.current_fan_mode
+                state: "sleep"
+            sequence:
+              - service: script.fan_mode_sleep
+          - conditions:
+              - condition: state
+                entity_id: input_text.current_fan_mode
+                state: "vent"
+            sequence:
+              - service: script.fan_mode_vent
+      - service: input_text.set_value
+        target:
+          entity_id: input_text.current_fan_mode
+        data:
+          value: ""
