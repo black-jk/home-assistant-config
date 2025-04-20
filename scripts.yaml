@@ -1,25 +1,5 @@
-unknown:
-  sequence:
-  - action: light.turn_on
-    metadata: {}
-    data:
-      kelvin: 5500
-      brightness_pct: 85
-    target:
-      entity_id: light.yeelink_sg_594192509_ceiling22_s_2_light
-  alias: 客廳開燈
-  description: ''
-unknown_2:
-  sequence:
-  - action: light.turn_off
-    metadata: {}
-    data: {}
-    target:
-      entity_id: light.yeelink_sg_594192509_ceiling22_s_2_light
-  alias: 客廳關燈
-  description: ''
 '1':
-  alias: 調整電扇 - JK
+  alias: 調整電扇 - 座位
   description: ''
   sequence:
   - if:
@@ -232,6 +212,8 @@ unknown_3:
       entity_id: switch.kong_qi_qing_jing_ji_power
     enabled: false
 unknown_4:
+  alias: 到家
+  description: ''
   sequence:
   - parallel:
     - action: light.turn_on
@@ -261,9 +243,9 @@ unknown_4:
       data: {}
       target:
         entity_id: switch.kong_qi_qing_jing_ji_power
-  alias: 到家
-  description: ''
 unknown_5:
+  alias: 調整電扇 - 通風
+  description: ''
   sequence:
   - if:
     - condition: device
@@ -337,5 +319,3 @@ unknown_5:
     data:
       value: '{{ 75 if states(''sensor.esp_sensor_1_temperature'') | float >= 27 else
         50 }}'
-  alias: 調整電扇 - 房間通風
-  description: ''

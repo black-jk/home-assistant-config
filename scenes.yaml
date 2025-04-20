@@ -1,0 +1,13 @@
+- id: '1745160188356'
+  name: TEST1
+  entities:
+    number.zhimi_sg_507844080_fb1_brightness_p_2_10:
+      min: 0
+      max: 1
+      step: 1
+      mode: auto
+      friendly_name: 循環扇 2  Fan 指示燈
+      state: '1'
+  metadata:
+    number.zhimi_sg_507844080_fb1_brightness_p_2_10:
+      entity_only: true
