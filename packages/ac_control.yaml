@@ -1,0 +1,224 @@
+# /packages/fan_control.yaml:
+
+# ----------------------------------------------------------------------------------------------------
+#  [冷氣控制]
+#    - TODO
+# ----------------------------------------------------------------------------------------------------
+
+homeassistant:
+  customize: {}
+
+input_number:
+  ac_temperature:
+    name: Temperature
+    initial: 25
+    min: 16
+    max: 30
+    step: 1
+  ac_timer:
+    name: Timer
+    initial: 0
+    min: 0
+    max: 12
+    step: 0.5
+
+input_select:
+  ac_fan_speed:
+    name: Fan Speed
+    options:
+      - auto
+      - breeze
+      - low
+      - high
+    initial: auto
+  ac_mode:
+    name: Mode
+    options:
+      - auto
+      - cool
+      - dry
+      - fan
+    initial: auto
+  ac_fuzzy:
+    name: Fuzzy Mode
+    options:
+      - none
+      - cold
+      - fine
+      - hot
+    initial: none
+
+switch:
+  - platform: template
+    switches:
+      ac_swing_lr:
+        friendly_name: "Left/Right Swing"
+        value_template: "{{ is_state('input_boolean.ac_swing_lr', 'on') }}"
+        turn_on:
+          service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.ac_swing_lr
+        turn_off:
+          service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.ac_swing_lr
+      ac_air_purifier:
+        friendly_name: "Air Purifier"
+        value_template: "{{ is_state('input_boolean.ac_air_purifier', 'on') }}"
+        turn_on:
+          service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.ac_air_purifier
+        turn_off:
+          service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.ac_air_purifier
+      ac_turbo:
+        friendly_name: "Turbo Mode"
+        value_template: "{{ is_state('input_boolean.ac_turbo', 'on') }}"
+        turn_on:
+          service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.ac_turbo
+        turn_off:
+          service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.ac_turbo
+      ac_timer_enable:
+        friendly_name: "Timer Enable"
+        value_template: "{{ is_state('input_boolean.ac_timer_enable', 'on') }}"
+        turn_on:
+          service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.ac_timer_enable
+        turn_off:
+          service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.ac_timer_enable
+      ac_sleep:
+        friendly_name: "Sleep Mode"
+        value_template: "{{ is_state('input_boolean.ac_sleep', 'on') }}"
+        turn_on:
+          service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.ac_sleep
+        turn_off:
+          service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.ac_sleep
+      ac_swing_ud:
+        friendly_name: "Up/Down Swing"
+        value_template: "{{ is_state('input_boolean.ac_swing_ud', 'on') }}"
+        turn_on:
+          service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.ac_swing_ud
+        turn_off:
+          service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.ac_swing_ud
+      ac_power:
+        friendly_name: "AC Power"
+        value_template: "{{ is_state('input_boolean.ac_power', 'on') }}"
+        turn_on:
+          service: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.ac_power
+        turn_off:
+          service: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.ac_power
+
+input_boolean:
+  ac_swing_lr:
+  ac_air_purifier:
+  ac_turbo:
+  ac_timer_enable:
+  ac_sleep:
+  ac_swing_ud:
+  ac_power:
+
+  ac_debug_mode:
+    name: Debug Mode
+    icon: mdi:bug
+
+# ----------------------------------------------------------------------------------------------------
+
+script:
+  send_ac_ir_code:
+    alias: "[AC-Control] - Send AC IR Code"
+    mode: single
+    sequence:
+      - variables:
+          t: "{{ states('input_number.ac_temperature') | int(16) }}"
+          fan: "{{ states('input_select.ac_fan_speed') | default('auto') }}"
+          fuzzy: "{{ states('input_select.ac_fuzzy') | default('none') }}"
+          mode: "{{ states('input_select.ac_mode') | default('auto') }}"
+          timer: "{{ states('input_number.ac_timer') | float(0) }}"
+          power: "{{ is_state('input_boolean.ac_power', 'on') }}"
+          sleep: "{{ is_state('input_boolean.ac_sleep', 'on') }}"
+          turbo: "{{ is_state('input_boolean.ac_turbo', 'on') }}"
+          purifier: "{{ is_state('input_boolean.ac_air_purifier', 'on') }}"
+          swing_lr: "{{ is_state('input_boolean.ac_swing_lr', 'on') }}"
+          swing_ud: "{{ is_state('input_boolean.ac_swing_ud', 'on') }}"
+          timer_enable: "{{ is_state('input_boolean.ac_timer_enable', 'on') }}"
+          debug_mode: "{{ is_state('input_boolean.ac_debug_mode', 'on') }}"
+
+      - service: text.set_value
+        data:
+          entity_id: text.ac_ir_remote_ir_code_text_input
+          value: >
+            {% set fan_map = {
+              'auto': 0,
+              'breeze': 1,
+              'low': 2,
+              'high': 4
+            } %}
+            {% set fuzzy_map = {
+              'none': 0,
+              'cold': 1,
+              'fine': 2,
+              'hot': 3
+            } %}
+            {% set mode_map = {
+              'auto': 0,
+              'cool': 1,
+              'dry': 2,
+              'fan': 3
+            } %}
+
+            {#   溫度  ( = Real temp - 16)                                              #}
+            {#   風速  000: 自動   001: 微風   010: 弱   100: 強                        #}
+            {#   左右風向                                                               #}
+            {#   倍清淨                                                                 #}
+            {#   強力                                                                   #}
+            {#   FUZZY   01: 太冷  10: 剛好  11: 太熱                                   #}
+            {#   TIMER   1111: 0.5HR  0001 ~ 1100: 1 ~ 12HR                             #}
+            {#   TIMER                                                                  #}
+            {#   舒眠                                                                   #}
+            {#   上下風向                                                               #}
+            {#   模式   0b00: 全自動(25°)   0b01: 冷氣(25°)   0b10: 除濕   0b11: 送風   #}
+            {#   開/關                                                                  #}
+
+            {#       溫  風  L 清強感 定   舒上 模 開    #}
+            {#       度  速  R 淨力   時   眠下 式 關    #}
+            {#        4   3  1 1 1  2 4+1  1 1   2 1     #}
+            {#      |--||-*| + | ||*||---| + +  || +     #}
+            {#    01000100 10000001 00000000 00001110    #}
+
+            {% if timer == 0.5 %}
+              {% set timer_code = 15 %}
+            {% elif timer >= 1 and timer <= 12 %}
+              {% set timer_code = (timer | int) % 16 %}  {# 替代 (timer | int) & 0b1111 #}
+            {% else %}
+              {% set timer_code = 0 %}
+            {% endif %}
+
+            {# %4 替代 & 0b11 #}
+            {# % 64 , % 8 替代 & 0b00111100 和 & 0b111 #}
+            {% set byte0 = ((swing_ud | int) * 128) + (mode_map.get(mode, 0) * 8) + (1 * 4) + (power * 2 | int) %}
+            {% set byte1 = ((fuzzy_map.get(fuzzy, 0) % 2) * 128) + (timer_code * 8) + ((timer_enable | int) * 4) + ((sleep | int) * 1) %}
+            {% set byte2 = ((fan_map.get(fan, 0) % 2) * 128) + ((swing_lr | int) * 32) + ((purifier | int) * 8) + ((turbo | int) * 2) + ((fuzzy_map.get(fuzzy, 0) / 2 | int) * 1) %}
+            {% set byte3 = (64) + ((t - 16) * 4) + (((fan_map.get(fan, 0) / 2) | int) * 1) %}
+
+            {{ "0x%02X%02X%02X%02X" | format(byte3 | int, byte2 | int, byte1 | int, byte0 | int) }}
