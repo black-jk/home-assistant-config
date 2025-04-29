@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-  cd '/cygdrive/d/Downloads/Home Assistant/config-git' || exit 1
+  cd '/cygdrive/d/git/Home Assistant/config-git' || exit 1
 
   cp '//BlackJK-NAS1/Container/container-station-data/lib/docker/volumes/homeassistant-1_config/_data/'*.yaml ./
 
