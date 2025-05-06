@@ -9,10 +9,11 @@
     - name: "Composite Location State (Source of JK)"
       unique_id: composite_location_state_src_jk
       state: >
-        {% set device_tracker_state = states('device_tracker.asus_i006d') %}
         {% set wifi_connection_state = states('sensor.asus_i006d_wi_fi_connection') %}
+        {% set device_tracker_state = states('device_tracker.asus_i006d') %}
+        {% set device_tracker_time = now() | as_local | as_timestamp - states.device_tracker.asus_i006d.last_changed | as_local | as_timestamp %}
 
-        {% if wifi_connection_state in ['JK-Home'] or device_tracker_state in ['home']%}
+        {% if wifi_connection_state in ['JK-Home'] or (device_tracker_state in ['home'] and device_tracker_time > 180) %}
           在家
         {% elif wifi_connection_state in ['HD', 'HD_AP1'] or device_tracker_state in ['公司']%}
           公司
