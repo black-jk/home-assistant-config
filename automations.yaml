@@ -68,6 +68,13 @@
         continue_on_error: true
         metadata: {}
         data: {}
+        enabled: false
+      - action: input_text.set_value
+        metadata: {}
+        data:
+          value: seat
+        target:
+          entity_id: input_text.current_fan_mode
     - type: notify
       domain: mobile_app
       continue_on_error: true
@@ -176,12 +183,6 @@
     - device_tracker.asus_i006d
     from:
     to:
-  - trigger: state
-    entity_id:
-    - input_text.test_text_01
-    from:
-    to:
-    enabled: false
   conditions:
   - condition: and
     conditions:
@@ -422,4 +423,54 @@
       位置變更: {{ from }} -> {{to }}
 
       '
+  mode: single
+- id: '1746193213580'
+  alias: check_xiaomi_custom_components
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.yeelink_sg_594192509_ceiling22_s_2_light
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 3
+      seconds: 0
+  conditions:
+  - condition: template
+    value_template: '{{ states(''light.isa_sg_1062383083_hlc8a_s_3_indicator_light'')
+      in (''unavailable'') }}'
+    enabled: false
+  - condition: state
+    entity_id: light.yeelink_sg_648869557_ceiling22_s_2_light
+    state: unavailable
+  actions:
+  - sequence:
+    - action: notify.mobile_app_asus_i006d
+      metadata: {}
+      data:
+        title: 小米整合已斷開
+        message: 重新啟動 HA
+    - action: homeassistant.restart
+      data: {}
+  mode: single
+- id: '1746360633037'
+  alias: phone_ASUS_Z01KDA_charge_check
+  description: ''
+  triggers:
+  - trigger: template
+    value_template: '{{ states(''binary_sensor.asus_z01kda_is_charging'') == "off"
+      and states(''sensor.asus_z01kda_battery_level'') | int < 75 }}'
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  conditions: []
+  actions:
+  - device_id: 47a779ad63edb5bb026f8229aa7831de
+    domain: mobile_app
+    type: notify
+    enabled: true
+    message: ASUS_Z01KDA
+    title: 手機未充電
   mode: single
