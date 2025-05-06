@@ -1,0 +1,138 @@
+# /packages/fan_control.yaml:
+
+# ----------------------------------------------------------------------------------------------------
+#  [虛擬警報器]
+# ----------------------------------------------------------------------------------------------------
+
+alarm_control_panel:
+  - platform: manual
+    unique_id: virtual_home_alarm
+    name: Virtual Home Alarm
+    code: "3652"
+    arming_time: 10        # 布防倒數（秒）
+    delay_time:  15        # 入侵後觸發倒數（秒）
+    trigger_time: 60       # 警報持續時間（秒）
+    armed_night:
+      arming_time: 5
+      delay_time: 5
+      trigger_time: 30
+
+# ----------------------------------------------------------------------------------------------------
+
+input_boolean:
+  virtual_door:
+    name: 虛擬門感測器
+    icon: mdi:door
+
+# ----------------------------------------------------------------------------------------------------
+
+automation:
+  - alias: "[Alarm] - 住家警報觸發 - 飯廰動作感應觸發"
+    trigger:
+      - platform: state
+        entity_id: event.isa_sg_1062383083_hlc8a_hl_event_motion_e_6_4
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: alarm_control_panel.virtual_home_alarm
+            state: armed_away
+          - condition: state
+            entity_id: alarm_control_panel.virtual_home_alarm
+            state: armed_vacation
+      - condition: not
+        conditions:
+          - condition: template
+            value_template: trigger.to_state.state in ['unknown', 'unavailable', 'none']
+          - condition: template
+            value_template: trigger.from_state.state in ['unknown', 'unavailable', 'none']
+    action:
+      - service: alarm_control_panel.alarm_trigger
+        target:
+          entity_id: alarm_control_panel.virtual_home_alarm
+      - action: notify.mobile_app_asus_i006d
+        metadata: {}
+        data:
+          title: 動態感應觸發
+          message: 位置： 飯廰
+
+  # --------------------------------------------------
+
+  # - alias: "[Alarm] - 住家警報觸發 - 後門動作感應觸發"
+  #   trigger:
+  #     - platform: state
+  #       entity_id: event.isa_sg_1108954083_hlc9a_hl_event_motion_e_6_4
+  #   condition:
+  #     - condition: or
+  #       conditions:
+  #         - condition: state
+  #           entity_id: alarm_control_panel.virtual_home_alarm
+  #           state: armed_away
+  #         - condition: state
+  #           entity_id: alarm_control_panel.virtual_home_alarm
+  #           state: armed_night
+  #         - condition: state
+  #           entity_id: alarm_control_panel.virtual_home_alarm
+  #           state: armed_vacation
+  #     - condition: not
+  #       conditions:
+  #         - condition: template
+  #           value_template: trigger.to_state.state in ['unknown', 'unavailable', 'none']
+  #         - condition: template
+  #           value_template: trigger.from_state.state in ['unknown', 'unavailable', 'none']
+  #   action:
+  #     - service: alarm_control_panel.alarm_trigger
+  #       target:
+  #         entity_id: alarm_control_panel.virtual_home_alarm
+  #     - action: notify.mobile_app_asus_i006d
+  #       metadata: {}
+  #       data:
+  #         title: 動態感應觸發
+  #         message: 位置： 後門
+
+  # --------------------------------------------------
+
+  - alias: "[Alarm] - [測試] 住家警報觸發 - 門被打開"
+    trigger:
+      - platform: state
+        entity_id: input_boolean.virtual_door
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.virtual_home_alarm
+        state: armed_away
+    action:
+      - service: alarm_control_panel.alarm_trigger
+        target:
+          entity_id: alarm_control_panel.virtual_home_alarm
+      - action: notify.mobile_app_asus_i006d
+        metadata: {}
+        data:
+          title: 警報觸發 (測試)
+          message: 虛擬門感測器動作觸發
+
+  # --------------------------------------------------
+
+  - alias: "[Alarm] - [測試] 住家警報解除後自動關門"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.virtual_home_alarm
+        to: disarmed
+    condition:
+      - condition: state
+        entity_id: input_boolean.virtual_door
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.virtual_door
+
+# ----------------------------------------------------------------------------------------------------
+
+# Optional: Lovelace UI 支援（若有使用 YAML Mode 的 dashboard）
+homeassistant:
+  customize:
+    alarm_control_panel.virtual_home_alarm:
+      friendly_name: 住家警報系統
+    input_boolean.virtual_door:
+      friendly_name: 虛擬門感測器
