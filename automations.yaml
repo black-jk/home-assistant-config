@@ -33,6 +33,13 @@
     data: {}
     enabled: true
   - parallel:
+    - action: alarm_control_panel.alarm_disarm
+      continue_on_error: true
+      metadata: {}
+      data:
+        code: '3652'
+      target:
+        entity_id: alarm_control_panel.virtual_home_alarm
     - if:
       - condition: time
         after: 08:00:00
@@ -64,17 +71,18 @@
           entity_id: sensor.esp_sensor_1_temperature
           state: unavailable
       then:
-      - action: script.1
-        continue_on_error: true
-        metadata: {}
-        data: {}
-        enabled: false
-      - action: input_text.set_value
-        metadata: {}
-        data:
-          value: seat
-        target:
-          entity_id: input_text.current_fan_mode
+      - if:
+        - condition: state
+          entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+          state: 'off'
+        then:
+        - action: input_text.set_value
+          continue_on_error: true
+          metadata: {}
+          data:
+            value: seat
+          target:
+            entity_id: input_text.current_fan_mode
     - type: notify
       domain: mobile_app
       continue_on_error: true
@@ -175,7 +183,7 @@
       title: '{{ now().timestamp() | timestamp_custom(''%H:%M:%S'') }} 到達家附近'
   mode: single
 - id: '1744609746869'
-  alias: '[通知] 地點變更'
+  alias: 封存 _ [通知] 地點變更
   description: ''
   triggers:
   - trigger: state
@@ -444,6 +452,9 @@
   - condition: state
     entity_id: light.yeelink_sg_648869557_ceiling22_s_2_light
     state: unavailable
+  - condition: state
+    entity_id: light.yeelink_sg_681952099_ceil34_s_2_light
+    state: unavailable
   actions:
   - sequence:
     - action: notify.mobile_app_asus_i006d
@@ -473,4 +484,209 @@
     enabled: true
     message: ASUS_Z01KDA
     title: 手機未充電
+  mode: single
+- id: '1746540747494'
+  alias: test_motion_trigger
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - event.isa_sg_1062383083_hlc8a_hl_event_motion_e_6_4
+  - trigger: state
+    entity_id:
+    - event.isa_sg_1062377978_hlc8a_hl_event_motion_e_6_4
+  conditions: []
+  actions:
+  - device_id: 47a779ad63edb5bb026f8229aa7831de
+    domain: mobile_app
+    type: notify
+    enabled: true
+    message: '{{ trigger.from_state.state }} -> {{ trigger.to_state.state }}'
+    title: '{{ now().timestamp() | timestamp_custom(''%H:%M:%S'') }} Motion'
+  mode: single
+- id: '1746587641662'
+  alias: TEST 虛擬警報觸發 - 前門動作感應觸發
+  description: ''
+  triggers:
+  - entity_id:
+    - event.isa_sg_1062377978_hlc8a_hl_event_motion_e_6_4
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: alarm_control_panel.virtual_home_alarm
+    state: armed_away
+  actions:
+  - target:
+      entity_id: alarm_control_panel.virtual_home_alarm
+    action: alarm_control_panel.alarm_trigger
+    data: {}
+  - action: notify.mobile_app_asus_i006d
+    metadata: {}
+    data:
+      title: 動作感應觸發
+      message: 位置： 前門
+  mode: single
+- id: '1746666722933'
+  alias: TEST 虛擬警報觸發 - 後門動作感應觸發
+  description: ''
+  triggers:
+  - entity_id:
+    - event.isa_sg_1108954083_hlc9a_hl_event_motion_e_6_4
+    trigger: state
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: alarm_control_panel.virtual_home_alarm
+      state: armed_away
+    - condition: state
+      entity_id: alarm_control_panel.virtual_home_alarm
+      state: armed_night
+    - condition: state
+      entity_id: alarm_control_panel.virtual_home_alarm
+      state: armed_vacation
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: event.isa_sg_1108954083_hlc9a_hl_event_motion_e_6_4
+      state: unavailable
+    - condition: template
+      value_template: trigger.from_state.state in ['unknown', 'unavailable', 'none']
+  actions:
+  - target:
+      entity_id: alarm_control_panel.virtual_home_alarm
+    action: alarm_control_panel.alarm_trigger
+    data: {}
+  - action: notify.mobile_app_asus_i006d
+    metadata: {}
+    data:
+      title: 動作感應觸發
+      message: 位置： 後門
+  mode: single
+- id: '1747060782056'
+  alias: I006D_WiFi_Check
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.asus_i006d_wi_fi_state
+    to: 'off'
+    for:
+      hours: 0
+      minutes: 15
+      seconds: 0
+    enabled: false
+  - trigger: time_pattern
+    minutes: /10
+    enabled: true
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.asus_i006d_wi_fi_state
+    state: 'off'
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  actions:
+  - device_id: 47a779ad63edb5bb026f8229aa7831de
+    domain: mobile_app
+    type: notify
+    enabled: true
+    message: WiFi 已關閉超過一定時間
+    title: WiFi 已關閉
+  mode: single
+- id: '1747187781404'
+  alias: auto_clear_old_datas
+  description: ''
+  triggers:
+  - at: 04:30:00
+    trigger: time
+  actions:
+  - data:
+      keep_days: 90
+      repack: true
+    action: recorder.purge
+  mode: single
+- id: '1748771090112'
+  alias: I006D_Battery_Check
+  description: ''
+  triggers:
+  - trigger: time_pattern
+    minutes: /5
+    enabled: true
+  conditions:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: sensor.composite_location_state_jk
+      state: 在家
+    - condition: numeric_state
+      entity_id: sensor.asus_i006d_battery_level
+      below: 85
+    - condition: state
+      entity_id: sensor.asus_i006d_charger_type
+      state: none
+  actions:
+  - device_id: 47a779ad63edb5bb026f8229aa7831de
+    domain: mobile_app
+    type: notify
+    enabled: true
+    message: 電量低於 85%
+    title: 請充電
+  mode: single
+- id: '1749360924567'
+  alias: light-auto-config-2
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.yeelink_sg_648869557_ceiling22_s_2_light
+    from:
+    to: 'on'
+  conditions: []
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id: light.yeelink_sg_648869557_ceiling22_s_2_light
+    data:
+      color_temp_kelvin: 5500
+      brightness_pct: 85
+  mode: single
+- id: '1749361502473'
+  alias: light-auto-config-1
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.yeelink_sg_594192509_ceiling22_s_2_light
+    from:
+    to: 'on'
+  conditions: []
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.yeelink_sg_594192509_ceiling22_s_2_light
+    data:
+      color_temp_kelvin: 5500
+      brightness_pct: 85
+  mode: single
+- id: '1749361593307'
+  alias: light-auto-config-3
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.yeelink_sg_681952099_ceil34_s_2_light
+    from:
+    to: 'on'
+  conditions: []
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id:
+      - light.yeelink_sg_681952099_ceil34_s_2_light
+    data:
+      color_temp_kelvin: 5500
+      brightness_pct: 85
   mode: single

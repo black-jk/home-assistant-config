@@ -6,6 +6,10 @@ default_config:
 frontend:
   themes: !include_dir_merge_named themes
 
+#recorder:
+#  purge_keep_days: 30  # 只保留最近 N 天的資料
+#  auto_purge: true     # 每晚自動清理
+
 automation: !include automations.yaml
 
 script: !include scripts.yaml

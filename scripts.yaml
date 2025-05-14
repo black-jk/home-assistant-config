@@ -73,83 +73,6 @@
     data:
       value: '{{ 75 if states(''sensor.esp_sensor_1_temperature'') | float > 27 else
         50 }}'
-'2':
-  alias: 調整電扇 - 睡覺
-  description: ''
-  sequence:
-  - if:
-    - condition: device
-      device_id: 35f18479e0bac6cec03a3445457ae5e3
-      domain: fan
-      entity_id: 77e1e84053b5acc41385d84c506498c8
-      type: is_off
-    then:
-    - type: turn_on
-      device_id: 35f18479e0bac6cec03a3445457ae5e3
-      entity_id: 77e1e84053b5acc41385d84c506498c8
-      domain: fan
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 2
-        milliseconds: 0
-  - type: turn_on
-    continue_on_error: true
-    device_id: 35f18479e0bac6cec03a3445457ae5e3
-    entity_id: 2e4beba706aaad2f00cb0ff13f641903
-    domain: switch
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 2
-      milliseconds: 0
-  - if:
-    - condition: state
-      entity_id: switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
-      state: 'on'
-    then:
-    - wait_for_trigger:
-      - trigger: state
-        entity_id:
-        - switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
-        from:
-        to: 'off'
-        enabled: true
-      timeout:
-        hours: 0
-        minutes: 0
-        seconds: 15
-        milliseconds: 0
-  - repeat:
-      count: 5
-      sequence:
-      - action: text.set_value
-        continue_on_error: true
-        metadata: {}
-        data:
-          value: left
-        target:
-          entity_id: text.zhimi_sg_507844080_fb1_h_swing_step_move_p_5_6
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 2
-          milliseconds: 0
-  - type: set_value
-    domain: number
-    value: 80
-    continue_on_error: true
-    device_id: 35f18479e0bac6cec03a3445457ae5e3
-    entity_id: 6accae6c1d9091ea586ee136d45d4a78
-    enabled: false
-  - action: number.set_value
-    continue_on_error: true
-    metadata: {}
-    target:
-      entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
-    data:
-      value: '{{ 80 if states(''sensor.esp_sensor_1_temperature'') | float > 27 else
-        65 }}'
 unknown_3:
   alias: 出門
   description: ''
@@ -163,6 +86,21 @@ unknown_3:
         brightness_pct: 10
       target:
         entity_id: light.yeelink_sg_648869557_ceiling22_s_2_light
+    - action: light.turn_off
+      continue_on_error: true
+      metadata: {}
+      data: {}
+      target:
+        device_id:
+        - ded41e59584a365a6cf14503294d6e47
+        - ca824db391421834d865959b9c265b77
+    - action: text.set_value
+      continue_on_error: true
+      metadata: {}
+      target:
+        entity_id: text.ac_ir_remote_ir_code_text_input
+      data:
+        value: '0x6C09800C'
     - type: turn_off
       continue_on_error: true
       device_id: a0eed8d94c6cc675d60674efe0f1aa99
@@ -178,44 +116,30 @@ unknown_3:
       device_id: 65fa5f6cf9274f0b8b95029a86f073c7
       entity_id: f644f56ca7554263b2060575669f7a8e
       domain: fan
-    - action: light.turn_off
-      continue_on_error: true
-      metadata: {}
-      data: {}
-      target:
-        device_id:
-        - ded41e59584a365a6cf14503294d6e47
-        - ca824db391421834d865959b9c265b77
-  - continue_on_error: true
-    if:
-    - condition: state
-      entity_id: switch.kong_qi_qing_jing_ji_power
-      state: 'on'
-    then:
-    - action: switch.turn_off
-      continue_on_error: true
-      metadata: {}
-      data: {}
-      target:
+    - continue_on_error: true
+      if:
+      - condition: state
         entity_id: switch.kong_qi_qing_jing_ji_power
-  - type: turn_off
-    continue_on_error: true
-    device_id: 1c10b6645f0ca98044aac97d9582f10e
-    entity_id: 9fbb289ac2cc95563ccddf93a69bb911
-    domain: switch
-    enabled: false
-  - action: switch.turn_off
-    continue_on_error: true
-    metadata: {}
-    data: {}
-    target:
-      entity_id: switch.kong_qi_qing_jing_ji_power
-    enabled: false
+        state: 'on'
+      then:
+      - action: switch.turn_off
+        continue_on_error: true
+        metadata: {}
+        data: {}
+        target:
+          entity_id: switch.kong_qi_qing_jing_ji_power
 unknown_4:
   alias: 到家
   description: ''
   sequence:
   - parallel:
+    - action: alarm_control_panel.alarm_disarm
+      continue_on_error: true
+      metadata: {}
+      data:
+        code: '3652'
+      target:
+        entity_id: alarm_control_panel.virtual_home_alarm
     - action: light.turn_on
       continue_on_error: true
       metadata: {}
@@ -243,79 +167,3 @@ unknown_4:
       data: {}
       target:
         entity_id: switch.kong_qi_qing_jing_ji_power
-unknown_5:
-  alias: 調整電扇 - 通風
-  description: ''
-  sequence:
-  - if:
-    - condition: device
-      device_id: 35f18479e0bac6cec03a3445457ae5e3
-      domain: fan
-      entity_id: 77e1e84053b5acc41385d84c506498c8
-      type: is_off
-    then:
-    - type: turn_on
-      device_id: 35f18479e0bac6cec03a3445457ae5e3
-      entity_id: 77e1e84053b5acc41385d84c506498c8
-      domain: fan
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 2
-        milliseconds: 0
-  - type: turn_on
-    device_id: 35f18479e0bac6cec03a3445457ae5e3
-    entity_id: 2e4beba706aaad2f00cb0ff13f641903
-    domain: switch
-  - delay:
-      hours: 0
-      minutes: 0
-      seconds: 2
-      milliseconds: 0
-  - if:
-    - condition: state
-      entity_id: switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
-      state: 'on'
-    then:
-    - wait_for_trigger:
-      - trigger: state
-        entity_id:
-        - switch.zhimi_sg_507844080_fb1_h_swing_back_p_5_4
-        from:
-        to: 'off'
-        enabled: true
-      timeout:
-        hours: 0
-        minutes: 0
-        seconds: 15
-        milliseconds: 0
-  - repeat:
-      count: 10
-      sequence:
-      - action: text.set_value
-        continue_on_error: true
-        metadata: {}
-        data:
-          value: right
-        target:
-          entity_id: text.zhimi_sg_507844080_fb1_h_swing_step_move_p_5_6
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 2
-          milliseconds: 0
-  - type: set_value
-    domain: number
-    continue_on_error: true
-    device_id: 35f18479e0bac6cec03a3445457ae5e3
-    entity_id: 6accae6c1d9091ea586ee136d45d4a78
-    value: 65
-    enabled: false
-  - action: number.set_value
-    continue_on_error: true
-    metadata: {}
-    target:
-      entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
-    data:
-      value: '{{ 75 if states(''sensor.esp_sensor_1_temperature'') | float >= 27 else
-        50 }}'
