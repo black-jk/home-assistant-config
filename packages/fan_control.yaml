@@ -14,6 +14,9 @@ input_text:
 
 template:
   - binary_sensor:
+      - name: "Fan Mode Rotate1"
+        state: "{{ is_state('input_text.current_fan_mode', 'rotate1') }}"
+        unique_id: fan_mode_seat_rotate1
       - name: "Fan Mode Seat"
         state: "{{ is_state('input_text.current_fan_mode', 'seat') }}"
         unique_id: fan_mode_seat_state
@@ -286,6 +289,53 @@ script:
           value: >-
             {{ 75 if states('sensor.esp_sensor_1_temperature') | float >= 27 else 50 }}
 
+  fan_mode_rotate1:
+    alias: "[Fan-Control] - 調整電扇 - 水平轉動1"
+    sequence:
+      - if:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: input_text.current_fan_mode
+                state: rotate1
+        then:
+          - stop: 模式已變更，中止執行
+      - if:
+          - condition: state
+            entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            state: "off"
+        then:
+          - target:
+              entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+            action: fan.turn_on
+            data: {}
+          - delay: "00:00:02"
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_text.current_fan_mode
+                    state: rotate1
+            then:
+              - stop: 模式已變更，中止執行
+      - sequence:
+          - action: number.set_value
+            target:
+              entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
+            data:
+              value: 50
+          - action: fan.oscillate
+            metadata: {}
+            data:
+              oscillating: true
+            target:
+              entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
+          - action: number.set_value
+            target:
+              entity_id: number.zhimi_sg_507844080_fb1_horizontal_angle_p_2_5
+            data:
+              value: "90"
+
 automation:
   - alias: "[Fan-Control] - 控制風扇主流程"
     mode: restart
@@ -312,6 +362,12 @@ automation:
                 state: "vent"
             sequence:
               - service: script.fan_mode_vent
+          - conditions:
+              - condition: state
+                entity_id: input_text.current_fan_mode
+                state: "rotate1"
+            sequence:
+              - service: script.fan_mode_rotate1
       - service: input_text.set_value
         target:
           entity_id: input_text.current_fan_mode
