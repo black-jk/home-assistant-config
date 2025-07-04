@@ -112,6 +112,12 @@ script:
         target:
           entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
         data:
+          value: 50
+      - action: number.set_value
+        continue_on_error: true
+        target:
+          entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
+        data:
           value: >-
             {{ 75 if states('sensor.esp_sensor_1_temperature') | float > 27 else 50 }}
 
@@ -199,8 +205,14 @@ script:
         target:
           entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
         data:
+          value: 70
+      - action: number.set_value
+        continue_on_error: true
+        target:
+          entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
+        data:
           value: >-
-            {{ 85 if states('sensor.esp_sensor_1_temperature') | float > 27 else 80 }}
+            {{ 90 if states('sensor.esp_sensor_1_temperature') | float > 27 else 80 }}
 
   fan_mode_vent:
     alias: "[Fan-Control] - 調整電扇 - 通風"
@@ -283,6 +295,12 @@ script:
               action: text.set_value
             - delay: "00:00:02"
       - action: number.set_value
+        target:
+          entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
+        data:
+          value: 50
+      - action: number.set_value
+        continue_on_error: true
         target:
           entity_id: number.zhimi_sg_507844080_fb1_stepless_fan_level_p_5_10
         data:
