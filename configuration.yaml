@@ -20,3 +20,11 @@ template: !include template.yaml
 
 homeassistant:
   packages: !include_dir_named packages
+
+
+
+# 測試反向代理
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.18.0.0/16
