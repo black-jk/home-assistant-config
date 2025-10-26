@@ -11,9 +11,9 @@ homeassistant:
 input_number:
   ac_temperature:
     name: Temperature
-    initial: 25
-    min: 16
-    max: 30
+    initial: 26
+    min: 20
+    max: 27
     step: 1
   ac_timer:
     name: Timer
@@ -30,7 +30,7 @@ input_select:
       - breeze
       - low
       - high
-    initial: auto
+    initial: breeze
   ac_mode:
     name: Mode
     options:
@@ -38,7 +38,7 @@ input_select:
       - cool
       - dry
       - fan
-    initial: auto
+    initial: cool
   ac_fuzzy:
     name: Fuzzy Mode
     options:
@@ -46,7 +46,7 @@ input_select:
       - cold
       - fine
       - hot
-    initial: none
+    initial: fine
 
 switch:
   - platform: template
