@@ -7,6 +7,64 @@
 # ----------------------------------------------------------------------------------------------------
 
 template:
+  - switch:
+      - name: "循環扇 1 左右擺動"
+        unique_id: zhimi_sg_508136115_horizontal_swing
+        default_entity_id: switch.zhimi_sg_508136115_horizontal_swing
+        state: "{{ state_attr('fan.zhimi_sg_508136115_fb1_s_2_fan', 'oscillating') }}"
+        turn_on:
+          - target:
+              entity_id:
+                - fan.zhimi_sg_508136115_fb1_s_2_fan
+            data:
+              oscillating: true
+            action: fan.oscillate
+        turn_off:
+          - target:
+              entity_id:
+                - fan.zhimi_sg_508136115_fb1_s_2_fan
+            data:
+              oscillating: false
+            action: fan.oscillate
+
+      - name: "循環扇 2 左右擺動"
+        unique_id: zhimi_sg_507844080_horizontal_swing
+        default_entity_id: switch.zhimi_sg_507844080_horizontal_swing
+        state: "{{ state_attr('fan.zhimi_sg_507844080_fb1_s_2_fan', 'oscillating') }}"
+        turn_on:
+          - target:
+              entity_id:
+                - fan.zhimi_sg_507844080_fb1_s_2_fan
+            data:
+              oscillating: true
+            action: fan.oscillate
+        turn_off:
+          - target:
+              entity_id:
+                - fan.zhimi_sg_507844080_fb1_s_2_fan
+            data:
+              oscillating: false
+            action: fan.oscillate
+
+      - name: "循環扇 3 左右擺動"
+        unique_id: zhimi_sg_508199094_horizontal_swing
+        default_entity_id: switch.zhimi_sg_508199094_horizontal_swing
+        state: "{{ state_attr('fan.zhimi_sg_508199094_fb1_s_2_fan', 'oscillating') }}"
+        turn_on:
+          - target:
+              entity_id:
+                - fan.zhimi_sg_508199094_fb1_s_2_fan
+            data:
+              oscillating: true
+            action: fan.oscillate
+        turn_off:
+          - target:
+              entity_id:
+                - fan.zhimi_sg_508199094_fb1_s_2_fan
+            data:
+              oscillating: false
+            action: fan.oscillate
+
   - binary_sensor:
       - name: "Fan 1 Swing Angle 30"
         unique_id: fan_1_swing_angle_30
@@ -73,49 +131,3 @@ template:
       - name: "Fan 3 vertical Angle 90"
         unique_id: fan_3_vertical_angle_90
         state: "{{ is_state('number.zhimi_sg_508199094_fb1_vertical_angle_p_2_6', '90') }}"
-
-
-switch:
-  - platform: template
-    switches:
-      zhimi_sg_508136115_horizontal_swing:
-        friendly_name: "循環扇 1 左右擺動"
-        value_template: "{{ state_attr('fan.zhimi_sg_508136115_fb1_s_2_fan', 'oscillating') }}"
-        turn_on:
-          service: fan.oscillate
-          data:
-            entity_id: fan.zhimi_sg_508136115_fb1_s_2_fan
-            oscillating: true
-        turn_off:
-          service: fan.oscillate
-          data:
-            entity_id: fan.zhimi_sg_508136115_fb1_s_2_fan
-            oscillating: false
-
-      zhimi_sg_507844080_horizontal_swing:
-        friendly_name: "循環扇 2 左右擺動"
-        value_template: "{{ state_attr('fan.zhimi_sg_507844080_fb1_s_2_fan', 'oscillating') }}"
-        turn_on:
-          service: fan.oscillate
-          data:
-            entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
-            oscillating: true
-        turn_off:
-          service: fan.oscillate
-          data:
-            entity_id: fan.zhimi_sg_507844080_fb1_s_2_fan
-            oscillating: false
-
-      zhimi_sg_508199094_horizontal_swing:
-        friendly_name: "循環扇 3 左右擺動"
-        value_template: "{{ state_attr('fan.zhimi_sg_508199094_fb1_s_2_fan', 'oscillating') }}"
-        turn_on:
-          service: fan.oscillate
-          data:
-            entity_id: fan.zhimi_sg_508199094_fb1_s_2_fan
-            oscillating: true
-        turn_off:
-          service: fan.oscillate
-          data:
-            entity_id: fan.zhimi_sg_508199094_fb1_s_2_fan
-            oscillating: false

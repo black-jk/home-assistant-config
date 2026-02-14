@@ -48,86 +48,99 @@ input_select:
       - hot
     initial: fine
 
-switch:
-  - platform: template
-    switches:
-      ac_swing_lr:
-        friendly_name: "Left/Right Swing"
-        value_template: "{{ is_state('input_boolean.ac_swing_lr', 'on') }}"
+template:
+  - switch:
+      - name: Left/Right Swing
+        state: "{{ is_state('input_boolean.ac_swing_lr', 'on') }}"
         turn_on:
-          service: input_boolean.turn_on
-          target:
-            entity_id: input_boolean.ac_swing_lr
+          - target:
+              entity_id:
+                - input_boolean.ac_swing_lr
+            action: input_boolean.turn_on
         turn_off:
-          service: input_boolean.turn_off
-          target:
-            entity_id: input_boolean.ac_swing_lr
-      ac_air_purifier:
-        friendly_name: "Air Purifier"
-        value_template: "{{ is_state('input_boolean.ac_air_purifier', 'on') }}"
+          - target:
+              entity_id:
+                - input_boolean.ac_swing_lr
+            action: input_boolean.turn_off
+        default_entity_id: switch.ac_swing_lr
+      - name: Air Purifier
+        state: "{{ is_state('input_boolean.ac_air_purifier', 'on') }}"
         turn_on:
-          service: input_boolean.turn_on
-          target:
-            entity_id: input_boolean.ac_air_purifier
+          - target:
+              entity_id:
+                - input_boolean.ac_air_purifier
+            action: input_boolean.turn_on
         turn_off:
-          service: input_boolean.turn_off
-          target:
-            entity_id: input_boolean.ac_air_purifier
-      ac_turbo:
-        friendly_name: "Turbo Mode"
-        value_template: "{{ is_state('input_boolean.ac_turbo', 'on') }}"
+          - target:
+              entity_id:
+                - input_boolean.ac_air_purifier
+            action: input_boolean.turn_off
+        default_entity_id: switch.ac_air_purifier
+      - name: Turbo Mode
+        state: "{{ is_state('input_boolean.ac_turbo', 'on') }}"
         turn_on:
-          service: input_boolean.turn_on
-          target:
-            entity_id: input_boolean.ac_turbo
+          - target:
+              entity_id:
+                - input_boolean.ac_turbo
+            action: input_boolean.turn_on
         turn_off:
-          service: input_boolean.turn_off
-          target:
-            entity_id: input_boolean.ac_turbo
-      ac_timer_enable:
-        friendly_name: "Timer Enable"
-        value_template: "{{ is_state('input_boolean.ac_timer_enable', 'on') }}"
+          - target:
+              entity_id:
+                - input_boolean.ac_turbo
+            action: input_boolean.turn_off
+        default_entity_id: switch.ac_turbo
+      - name: Timer Enable
+        state: "{{ is_state('input_boolean.ac_timer_enable', 'on') }}"
         turn_on:
-          service: input_boolean.turn_on
-          target:
-            entity_id: input_boolean.ac_timer_enable
+          - target:
+              entity_id:
+                - input_boolean.ac_timer_enable
+            action: input_boolean.turn_on
         turn_off:
-          service: input_boolean.turn_off
-          target:
-            entity_id: input_boolean.ac_timer_enable
-      ac_sleep:
-        friendly_name: "Sleep Mode"
-        value_template: "{{ is_state('input_boolean.ac_sleep', 'on') }}"
+          - target:
+              entity_id:
+                - input_boolean.ac_timer_enable
+            action: input_boolean.turn_off
+        default_entity_id: switch.ac_timer_enable
+      - name: Sleep Mode
+        state: "{{ is_state('input_boolean.ac_sleep', 'on') }}"
         turn_on:
-          service: input_boolean.turn_on
-          target:
-            entity_id: input_boolean.ac_sleep
+          - target:
+              entity_id:
+                - input_boolean.ac_sleep
+            action: input_boolean.turn_on
         turn_off:
-          service: input_boolean.turn_off
-          target:
-            entity_id: input_boolean.ac_sleep
-      ac_swing_ud:
-        friendly_name: "Up/Down Swing"
-        value_template: "{{ is_state('input_boolean.ac_swing_ud', 'on') }}"
+          - target:
+              entity_id:
+                - input_boolean.ac_sleep
+            action: input_boolean.turn_off
+        default_entity_id: switch.ac_sleep
+      - name: Up/Down Swing
+        state: "{{ is_state('input_boolean.ac_swing_ud', 'on') }}"
         turn_on:
-          service: input_boolean.turn_on
-          target:
-            entity_id: input_boolean.ac_swing_ud
+          - target:
+              entity_id:
+                - input_boolean.ac_swing_ud
+            action: input_boolean.turn_on
         turn_off:
-          service: input_boolean.turn_off
-          target:
-            entity_id: input_boolean.ac_swing_ud
-      ac_power:
-        friendly_name: "AC Power"
-        value_template: "{{ is_state('input_boolean.ac_power', 'on') }}"
+          - target:
+              entity_id:
+                - input_boolean.ac_swing_ud
+            action: input_boolean.turn_off
+        default_entity_id: switch.ac_swing_ud
+      - name: AC Power
+        state: "{{ is_state('input_boolean.ac_power', 'on') }}"
         turn_on:
-          service: input_boolean.turn_on
-          target:
-            entity_id: input_boolean.ac_power
+          - target:
+              entity_id:
+                - input_boolean.ac_power
+            action: input_boolean.turn_on
         turn_off:
-          service: input_boolean.turn_off
-          target:
-            entity_id: input_boolean.ac_power
+          - target:
+              entity_id:
+                - input_boolean.ac_power
+            action: input_boolean.turn_off
+        default_entity_id: switch.ac_power
 
 input_boolean:
   ac_swing_lr:
