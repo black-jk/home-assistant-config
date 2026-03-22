@@ -82,7 +82,7 @@ unknown_3:
       continue_on_error: true
       metadata: {}
       data:
-        kelvin: 5500
+        color_temp_kelvin: 5500
         brightness_pct: 10
       target:
         entity_id: light.yeelink_sg_648869557_ceiling22_s_2_light
@@ -144,7 +144,7 @@ unknown_4:
       continue_on_error: true
       metadata: {}
       data:
-        kelvin: 5500
+        color_temp_kelvin: 5500
         brightness_pct: 85
       target:
         entity_id:

@@ -58,7 +58,7 @@
         metadata: {}
         data:
           brightness_pct: 85
-          kelvin: 5500
+          color_temp_kelvin: 5500
         target:
           entity_id: light.yeelink_sg_594192509_ceiling22_s_2_light
     - if:
@@ -232,7 +232,7 @@
     metadata: {}
     data:
       brightness_pct: 85
-      kelvin: 5500
+      color_temp_kelvin: 5500
     target:
       entity_id: light.yeelink_sg_594192509_ceiling22_s_2_light
     enabled: false
@@ -259,7 +259,7 @@
     metadata: {}
     data:
       brightness_pct: 85
-      kelvin: 5500
+      color_temp_kelvin: 5500
     target:
       entity_id:
       - light.yeelink_sg_648869557_ceiling22_s_2_light
