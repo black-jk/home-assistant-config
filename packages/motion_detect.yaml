@@ -1,0 +1,44 @@
+# ----------------------------------------------------------------------------------------------------
+#  [運動偵測狀態]
+#    - 純虛擬 binary_sensor
+#    - 由 webhook 觸發更新狀態
+#    - 支援查看目前狀態和歷史記錄
+#    - Webhook
+#    -   URL: http://blackjk.ddns.net:8123/api/webhook/-Ud3m-yFo9lK10POLUHfGlOt_
+#    -     POST:
+#    -       detect: 0 | 1
+#    -   呼叫端:   Wifi_Monitor_01
+#    -   訊號來源: IR 人體感應模組
+# ----------------------------------------------------------------------------------------------------
+
+# 1. 儲存 motion detect 狀態
+input_boolean:
+  motion_detect_status:
+    name: Motion Detect Status
+    icon: mdi:radioactive
+
+# 2.  監聽 webhook 觸發並更新狀態
+automation:
+  - alias: "[Motion Detect] - Webhook Handler"
+    trigger:
+      platform: webhook
+      allowed_methods:
+        - POST
+      webhook_id: "-Ud3m-yFo9lK10POLUHfGlOt_"
+
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.data.detect == '1' }}"
+            sequence:
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.motion_detect_status
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.data.detect == '0' }}"
+            sequence:
+              - action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.motion_detect_status
